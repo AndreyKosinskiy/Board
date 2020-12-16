@@ -1,0 +1,30 @@
+.list-ui {
+  display: inline-block;
+  background-color: gray;
+  height: 200px;
+  width: 100px;
+}
+.list-ui-header {
+  height: 10%;
+}
+.list-ui-title {
+  display: inline-block;
+}
+.list-ui-menu {
+  display: inline-block;
+  float: right;
+}
+.list-ui-body {
+  width: inherit;
+  height: 80%;
+  overflow-x: hidden;
+  overflow-y: scroll;
+}
+.list-ui-footer {
+  height: 10%;
+}
+.card-ui {
+  background-color: greenyellow;
+  height: 50px;
+  margin: 5px;
+}
