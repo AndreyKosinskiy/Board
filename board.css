@@ -3,6 +3,8 @@
   background-color: gray;
   height: 200px;
   width: 100px;
+  border-radius: 3px;
+  box-sizing: border-box;
 }
 .list-ui-header {
   height: 10%;
@@ -12,13 +14,13 @@
 }
 .list-ui-menu {
   display: inline-block;
-  float: right;
 }
 .list-ui-body {
-  width: inherit;
-  height: 80%;
+  width: 90px;
+  min-height: 0px;
+  padding: 5px;
   overflow-x: hidden;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 .list-ui-footer {
   height: 10%;
@@ -26,5 +28,12 @@
 .card-ui {
   background-color: greenyellow;
   height: 50px;
+  margin: 5px;
+  padding: 5px;
+  cursor: grab;
+}
+.card-ui-placeholder {
+  background-color: rgba(221, 84, 84, 0.363);
+  border: black 2px dotted;
   margin: 5px;
 }
