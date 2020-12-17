@@ -1,13 +1,22 @@
+.board-ui{
+  height: 100vh;
+  position:relative;
+}
 .list-ui {
   display: inline-block;
   background-color: gray;
-  height: 200px;
-  width: 100px;
+  width: 200px;
   border-radius: 3px;
   box-sizing: border-box;
+  position:absolute;
 }
 .list-ui-header {
-  height: 10%;
+  height: 2em;
+  margin:0.3em;
+  cursor:grab;
+}
+.list-ui-header:active{
+  cursor:grabbing;
 }
 .list-ui-title {
   display: inline-block;
@@ -16,14 +25,23 @@
   display: inline-block;
 }
 .list-ui-body {
-  width: 90px;
+  width: 90%;
+  height: 5em;
   min-height: 0px;
-  padding: 5px;
+  margin:0.3em;
   overflow-x: hidden;
   overflow-y: auto;
+  background-color: rgb(7, 158, 228);
+  border: 1px black solid;
+}
+.list-ui-body-clearfix:after {
+  clear: both;
+  content: "";
+  display: table;
 }
 .list-ui-footer {
-  height: 10%;
+  height: 2em;
+  margin:0.3em;
 }
 .card-ui {
   background-color: greenyellow;
@@ -36,4 +54,8 @@
   background-color: rgba(221, 84, 84, 0.363);
   border: black 2px dotted;
   margin: 5px;
+}
+.card-ui-selected{
+  border: black 2px dotted;
+  opacity: 0.5;
 }
