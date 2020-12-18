@@ -1,3 +1,10 @@
+.ui-sortable-helper{
+  z-index:1050!important;
+}
+.ui-selected{
+  border: black 2px dotted;
+  opacity: 0.5;
+}
 .board-ui{
   height: 100vh;
   position:relative;
@@ -34,11 +41,11 @@
   background-color: rgb(7, 158, 228);
   border: 1px black solid;
 }
-.list-ui-body-clearfix:after {
+/* .list-ui-body-clearfix:after {
   clear: both;
   content: "";
   display: table;
-}
+} */
 .list-ui-footer {
   height: 2em;
   margin:0.3em;
@@ -55,7 +62,4 @@
   border: black 2px dotted;
   margin: 5px;
 }
-.card-ui-selected{
-  border: black 2px dotted;
-  opacity: 0.5;
-}
+
