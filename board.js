@@ -114,6 +114,23 @@ $(function() {
 		console.log('click')
 	})
 
+	//PanZoom
+	const elem = document.getElementById('panzoom')
+	const panZoomOptions ={
+		excludeClass: 'list-ui'
+	}
+	const panzoom = Panzoom(elem,panZoomOptions)
+	const parent = elem.parentElement
+	// No function bind needed
+	parent.addEventListener('wheel', panzoom.zoomWithWheel)
+
+	// This demo binds to shift + wheel
+	parent.addEventListener('wheel', function(event) {
+	if (!event.shiftKey) return
+	panzoom.zoomWithWheel(event)
+	})
+
+
 	// // Jqury Ui Selectable	
     // const selectCreate = function( event, ui ) {
 	// 	return false;
