@@ -3,6 +3,7 @@ $(function() {
 	const listsSelector = '.list-ui';
 	const listsSelectorBody = '.list-ui-body';
 	const cardsSelector = '.card-ui';
+	const selectedClass = 'ui-selected'
 	const zIndexDefault = 1000;
 	const zIndexUp = zIndexDefault + 50;
 
@@ -17,8 +18,16 @@ $(function() {
     const elementUp = function(event, ui) {
 		let $item = ui.element || ui.item;
 		$item.css('z-index', zIndexUp);
-    };
-
+	};
+	
+	//Custom selectable
+	
+	window.onclick = function(event){
+		var target= event.target
+		if (!$(target).hasClass(selectedClass)){
+			$('.' + selectedClass).toggleClass(selectedClass);
+		}
+	}
 	// Jquery Ui Resizable
 
 	const startResize = function(event, ui) {
@@ -86,7 +95,7 @@ $(function() {
 		  item.parent().children('.ui-selected').removeClass('ui-selected');
 		  item.addClass('ui-selected');
 		}
-  		var selected = item.parent().children('.ui-selected').clone();
+		var selected = item.parent().children('.ui-selected').clone();
 		item.data('multidrag', selected).siblings('.ui-selected').remove();
 		return $('<div/>').append(selected);
 	  }
