@@ -21,7 +21,7 @@ $(function() {
 	};
 	
 	//Custom selectable
-	
+
 	window.onclick = function(event){
 		var target= event.target
 		if (!$(target).hasClass(selectedClass)){
@@ -120,7 +120,6 @@ $(function() {
 
 	$('body').on('click','.card-ui',function(event){
 		$(event.target).toggleClass('ui-selected')
-		console.log('click')
 	})
 
 	//PanZoom

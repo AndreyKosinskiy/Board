@@ -9,6 +9,9 @@
   height: 100vh;
   position:relative;
 }
+#panzoom{
+  height: 100vw;
+}
 .list-ui {
   display: inline-block;
   background-color: gray;
@@ -41,11 +44,7 @@
   background-color: rgb(7, 158, 228);
   border: 1px black solid;
 }
-/* .list-ui-body-clearfix:after {
-  clear: both;
-  content: "";
-  display: table;
-} */
+
 .list-ui-footer {
   height: 2em;
   margin:0.3em;
