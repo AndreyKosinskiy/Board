@@ -1,16 +1,24 @@
-.ui-sortable-helper{
-  z-index:1050!important;
-}
-.ui-selected{
-  border: black 2px dotted;
-  opacity: 0.5;
+body{
+  overflow: hidden;
+  height: 100vw;
+  border: 2px red solid;
+  width: 100vw;
 }
 .board-ui{
-  height: 100vh;
-  position:relative;
+  height: 100vw;
+  width: 100vw;
+  position:absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  top: 56px;
+  border: 2px black solid
 }
 #panzoom{
   height: 100vw;
+  position: absolute;
+  border: 2px blue solid;
+  width: 100vw;
 }
 .list-ui {
   display: inline-block;
@@ -61,4 +69,10 @@
   border: black 2px dotted;
   margin: 5px;
 }
-
+.ui-sortable-helper{
+  z-index:1050!important;
+}
+.ui-selected{
+  border: black 2px dotted;
+  opacity: 0.5;
+}

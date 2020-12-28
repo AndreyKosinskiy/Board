@@ -3,38 +3,44 @@ $(function() {
 	const listsSelector = '.list-ui';
 	const listsSelectorBody = '.list-ui-body';
 	const cardsSelector = '.card-ui';
-	const selectedClass = 'ui-selected'
+	const selectedClass = 'ui-selected';
 	const zIndexDefault = 1000;
 	const zIndexUp = zIndexDefault + 50;
 
+	const $board = $(boardSelector);
 	const $lists = $(listsSelector);
 	const $listsBody = $(listsSelectorBody);
 	const $cards = $(cardsSelector);
 
-    const elementDown = function(event, ui) {
+	const $listsAndCards = $([listsSelector,cardsSelector])
+
+	const elementDown = function(event, ui) {
 		let $item = ui.element || $(ui.helper);
-        $item.css('z-index', zIndexDefault);
-    }
-    const elementUp = function(event, ui) {
+		$item.css('z-index', zIndexDefault);
+	};
+	const elementUp = function(event, ui) {
 		let $item = ui.element || ui.item;
 		$item.css('z-index', zIndexUp);
 	};
-	
+
 	//Custom selectable
 
-	window.onclick = function(event){
-		var target= event.target
-		if (!$(target).hasClass(selectedClass)){
+	window.onclick = function(event) {
+		var target = event.target;
+		if (!$(target).hasClass(selectedClass)) {
 			$('.' + selectedClass).toggleClass(selectedClass);
 		}
-	}
+	};
 	// Jquery Ui Resizable
 
 	const startResize = function(event, ui) {
-        elementUp(event, ui)
+		elementUp(event, ui);
+		var pz = $board.find('#panzoom');
+		pz.panzoom("disable");
 	};
 	const stopResize = function(event, ui) {
-		elementDown(event, ui)
+		elementDown(event, ui);
+		$board.find("#panzoom").panzoom("enable");
 	};
 	const eventsResizable = {
 		start: startResize,
@@ -55,53 +61,65 @@ $(function() {
 	// Jquery Ui Draggable
 	// Drag lists on the board
 
-    const startDraggable = function( event, ui ) {
-		
-    }
-    const stopDraggable = function(event, ui){
-        
-	}
-	const dragDraggable = function( event, ui ) {
-		
-	}
-    const eventsDraggable ={
+	const startDraggable = function(event, ui) {
+		var pz = $board.find('#panzoom');
+		currentScale = pz.panzoom('getMatrix')[0];
+		$(this).css('cursor', 'move');
+		pz.panzoom("disable");
+	};
+	const stopDraggable = function(event, ui) {
+		$(this).css('cursor', '');
+		$board.find("#panzoom").panzoom("enable");
+	};
+
+	const dragDraggable = function(event, ui) {
+
+		ui.position.left = ui.position.left / currentScale;
+		ui.position.top = ui.position.top / currentScale;
+		console.log(ui.position)
+	};
+	const eventsDraggable = {
 		start: startDraggable,
 		drag: dragDraggable,
-        stop: stopDraggable,
-    }
+		stop: stopDraggable
+	};
 	optionsDraggable = {
-        ...eventsDraggable,
+		...eventsDraggable,
 		handle: '.list-ui-header',
 		containment: boardSelector,
 		stack: listsSelector
 	};
 	$lists.draggable(optionsDraggable).disableSelection();
-
-    //Jquery Ui Sortable
+	//Jquery Ui Sortable
 	// Drag cards on the board and put to lists
 
-   
-
-	const dragItemStop = function(event, ui) {
-		elementDown(event, ui)
+	const sortableItemStop = function(event, ui) {
+		//manual call eventListener
+		$($panzoom.parent()).trigger('mouseup')
+		stopDraggable(event, ui)
+		elementDown(event, ui);
 		const selected = ui.item.data('multidrag');
 		ui.item.after(selected);
-		selected.css('z-index', zIndexDefault)
-      	ui.item.remove();
+		selected.css('z-index', zIndexDefault);
+		ui.item.remove();
+		//fix bug after drop in sortable
+		$('.list-ui-body').each(function(index,elem){
+			$(elem).css('cursor','')
+		})
 	};
 
 	const multiHelper = function(e, item) {
-		if ( ! item.hasClass('ui-selected') ) {
-		  item.parent().children('.ui-selected').removeClass('ui-selected');
-		  item.addClass('ui-selected');
+		if (!item.hasClass('ui-selected')) {
+			item.parent().children('.ui-selected').removeClass('ui-selected');
+			item.addClass('ui-selected');
 		}
 		var selected = item.parent().children('.ui-selected').clone();
 		item.data('multidrag', selected).siblings('.ui-selected').remove();
 		return $('<div/>').append(selected);
-	  }
-
+	};
 	const eventsSortable = {
-		stop: dragItemStop
+		activate:startDraggable,
+		stop: sortableItemStop
 	};
 
 	optionsSortable = {
@@ -113,59 +131,87 @@ $(function() {
 		forceHelperSize: true,
 		placeholder: 'card-ui-placeholder',
 		appendTo: 'body',
-		helper:multiHelper
+		helper: multiHelper
 	};
 
-	$listsBody.sortable(optionsSortable).disableSelection()
+	$listsBody.sortable(optionsSortable).disableSelection();
 
-	$('body').on('click','.card-ui',function(event){
-		$(event.target).toggleClass('ui-selected')
-	})
+	$('body').on('click', '.card-ui', function(event) {
+		$(event.target).toggleClass('ui-selected');
+	});
 
-	//PanZoom
-	const elem = document.getElementById('panzoom')
-	const panZoomOptions ={
-		excludeClass: 'list-ui'
-	}
-	const panzoom = Panzoom(elem,panZoomOptions)
-	const parent = elem.parentElement
-	// No function bind needed
-	parent.addEventListener('wheel', panzoom.zoomWithWheel)
+	//Panzoom
+	var minScale = 0.4;
+	var maxScale = 2;
+	var incScale = 0.1;
+	$panzoom = $board
+		.find('#panzoom')
+		.panzoom({
+			minScale: minScale,
+			maxScale: maxScale,
+			increment: incScale,
+			cursor: '',
+			ignoreChildrensEvents: true,
 
-	// This demo binds to shift + wheel
-	parent.addEventListener('wheel', function(event) {
-	if (!event.shiftKey) return
-	panzoom.zoomWithWheel(event)
-	})
+		})
+		.on('panzoomstart', function(e, pz, ev) {
+			$panzoom.css('cursor', 'move');
+		})
+		.on('panzoomend', function(e, pz) {
+			$panzoom.css('cursor', '');
+		});
+	$panzoom
+		.parent()
+		.on('mousewheel.focal', function(e) {
+			if (e.ctrlKey || e.originalEvent.ctrlKey) {
+				e.preventDefault();
+				var delta = e.delta || e.originalEvent.wheelDelta;
+				var zoomOut = delta ? delta < 0 : e.originalEvent.deltaY > 0;
+				$panzoom.panzoom('zoom', zoomOut, {
+					animate: true,
+					exponential: false
+				});
+			} else {
+				e.preventDefault();
+				var deltaY = e.deltaY || e.originalEvent.wheelDeltaY || -e.originalEvent.deltaY;
+				var deltaX = e.deltaX || e.originalEvent.wheelDeltaX || -e.originalEvent.deltaX;
+				$panzoom.panzoom('pan', deltaX / 2, deltaY / 2, {
+					animate: true,
+					relative: true
+				});
+			}
+		})
+		.on('mousedown touchstart', function(ev) {
+			var matrix = $board.find('#panzoom').panzoom('getMatrix');
+			var offsetX = matrix[4];
+			var offsetY = matrix[5];
+			var dragstart = { x: ev.pageX, y: ev.pageY, dx: offsetX, dy: offsetY };
+			var target = ev.target
+			$(this).data('dragstart', dragstart);
+			//cursor fix
+			if (!$(target).hasClass('ui-resizable-handle')){
+				$(ev.target).css('cursor', 'move');
+			}
 
 
-	// // Jqury Ui Selectable	
-    // const selectCreate = function( event, ui ) {
-	// 	return false;
-	// }
-	// const selectItemStart = function(event, ui) {
+		})
+		.on('mousemove touchmove', function(ev) {
+			var dragstart = $(this).data('dragstart');
+			if (dragstart) {
+				var deltaX = dragstart.x - ev.pageX;
+				var deltaY = dragstart.y - ev.pageY;
+				var matrix = $board.find('#panzoom').panzoom('getMatrix');
+				matrix[4] = parseInt(dragstart.dx) - deltaX;
+				matrix[5] = parseInt(dragstart.dy) - deltaY;
+				$board.find('#panzoom').panzoom('setMatrix', matrix);
+			}
+		})
+		.on('mouseup touchend touchcancel', function(ev) {
+			$(this).data('dragstart', null);
+			$(ev.target).css('cursor', '');
+		});
 
-	// 	console.log('selectItemStart')
-	
-	// };
-	// const selectingItem = function( event, ui ) {
-	// 	console.log(ui)
-	// }
-	// eventsSelectable = {
-	// 	create: selectCreate,
-	// 	start: selectItemStart,
-	// 	selecting:selectingItem
-	// };
-	// optionsSelectable = {
-	// 	...eventsSelectable
-	// 	// classes: {
-	// 	// 	'ui-selected': 'card-ui-selected',
-	// 	// 	'ui-selecting': 'card-ui-selected'
-	// 	// }
-	// };
-    // $listsBody.each(function(index,elem){
-	// 	let $listBody = $(elem)
-	// 	optionsSelectable['appendTo'] = elem
-	// 	$listBody.selectable(optionsSelectable)
-	// })
+		$lists.on('mousedown mousewheel.focal',function(event){
+			event.stopPropagation();
+		})
 });
