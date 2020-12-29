@@ -96,13 +96,15 @@ $(function() {
 	// Drag cards on the board and put to lists
 
 	const sortableItemStop = function(event, ui) {
+		console.log("revert?: "+ revert)
 		if(!revert){
 			
 			elementDown(event, ui);
 			const selected = ui.item.data('multidrag');
 			ui.item.after(selected);
 			selected.css('z-index', zIndexDefault);
-			ui.item.remove();
+			// ui.item.remove();
+			// $('.card-hide').remove();
 			//fix bug after drop in sortable
 			$('.list-ui-body').each(function(index,elem){
 				$(elem).css('cursor','')
@@ -110,11 +112,19 @@ $(function() {
 			//manual call eventListener
 			$($panzoom.parent()).trigger('mouseup')
 			stopDraggable(event, ui)
+			ui.item.remove();
 			$('.card-hide').remove();
 		}else{
 			// revert ui.item
-			$listsBody.sortable("cancel")
-			$('.card-hide').removeClass('card-hide')
+			const selected = ui.item.data('multidrag');
+			if(selected.length == 1){
+				$listsBody.sortable("cancel")
+				$('.card-hide').removeClass('card-hide')
+			}else{
+				$listsBody.sortable("cancel")
+				$('.card-hide').removeClass('card-hide')
+			}
+
 			revert = false
 		}
 	};
