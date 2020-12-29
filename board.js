@@ -4,6 +4,7 @@ $(function() {
 	const listsSelectorBody = '.list-ui-body';
 	const cardsSelector = '.card-ui';
 	const selectedClass = 'ui-selected';
+	const placeholderClass = 'card-ui-placeholder';
 	const zIndexDefault = 1000;
 	const zIndexUp = zIndexDefault + 50;
 
@@ -23,12 +24,14 @@ $(function() {
 		$item.css('z-index', zIndexUp);
 	};
 
-	//Custom selectable
-
 	window.onclick = function(event) {
-		var target = event.target;
-		if (!$(target).hasClass(selectedClass)) {
-			$('.' + selectedClass).toggleClass(selectedClass);
+		let target = $(event.target)
+		if (target.hasClass('card-ui') && event.ctrlKey){
+			if (event.ctrlKey){
+				target.toggleClass(selectedClass)
+			}
+		}else{
+			$('.'+selectedClass).toggleClass(selectedClass)
 		}
 	};
 	// Jquery Ui Resizable
@@ -73,10 +76,10 @@ $(function() {
 	};
 
 	const dragDraggable = function(event, ui) {
-
+		//fix for panzooming
 		ui.position.left = ui.position.left / currentScale;
 		ui.position.top = ui.position.top / currentScale;
-		console.log(ui.position)
+	
 	};
 	const eventsDraggable = {
 		start: startDraggable,
@@ -86,26 +89,34 @@ $(function() {
 	optionsDraggable = {
 		...eventsDraggable,
 		handle: '.list-ui-header',
-		containment: boardSelector,
-		stack: listsSelector
+		stack: listsSelector,
 	};
 	$lists.draggable(optionsDraggable).disableSelection();
 	//Jquery Ui Sortable
 	// Drag cards on the board and put to lists
 
 	const sortableItemStop = function(event, ui) {
-		//manual call eventListener
-		$($panzoom.parent()).trigger('mouseup')
-		stopDraggable(event, ui)
-		elementDown(event, ui);
-		const selected = ui.item.data('multidrag');
-		ui.item.after(selected);
-		selected.css('z-index', zIndexDefault);
-		ui.item.remove();
-		//fix bug after drop in sortable
-		$('.list-ui-body').each(function(index,elem){
-			$(elem).css('cursor','')
-		})
+		if(!revert){
+			
+			elementDown(event, ui);
+			const selected = ui.item.data('multidrag');
+			ui.item.after(selected);
+			selected.css('z-index', zIndexDefault);
+			ui.item.remove();
+			//fix bug after drop in sortable
+			$('.list-ui-body').each(function(index,elem){
+				$(elem).css('cursor','')
+			})
+			//manual call eventListener
+			$($panzoom.parent()).trigger('mouseup')
+			stopDraggable(event, ui)
+			$('.card-hide').remove();
+		}else{
+			// revert ui.item
+			$listsBody.sortable("cancel")
+			$('.card-hide').removeClass('card-hide')
+			revert = false
+		}
 	};
 
 	const multiHelper = function(e, item) {
@@ -113,13 +124,43 @@ $(function() {
 			item.parent().children('.ui-selected').removeClass('ui-selected');
 			item.addClass('ui-selected');
 		}
-		var selected = item.parent().children('.ui-selected').clone();
-		item.data('multidrag', selected).siblings('.ui-selected').remove();
+		var selected = $('.ui-selected').clone();
+	//	item.data('multidrag', selected).siblings('.ui-selected').addClass('card-hide')//remove();
+		// $('.ui-selected').each(function(index,elem){
+		// 	var $elem = $(elem)
+		// 	if(!$elem.is(item)){
+		// 		$elem.addClass('card-hide')//remove()
+		// 	}
+		// })
+		console.log('hide all selected')
+		$('.ui-selected').addClass('card-hide')
+		item.data('multidrag', selected)
 		return $('<div/>').append(selected);
 	};
+
+	const sortableOut = function(event, ui){
+		$(ui.placeholder).addClass('hide');
+	}
+
+	const sortableOver = function(event, ui){
+		$(ui.placeholder).removeClass('hide');
+	}
+	var revert = false;
+	const revertSortable = function(event, ui){
+		// check on revert
+		if($('.'+placeholderClass).hasClass('hide')){
+			revert = true
+		}else{
+			revert = false
+		}
+	}
+
 	const eventsSortable = {
-		activate:startDraggable,
-		stop: sortableItemStop
+		activate: startDraggable,
+		stop: sortableItemStop,
+		beforeStop: revertSortable,
+		out: sortableOut,
+		over: sortableOver
 	};
 
 	optionsSortable = {
@@ -133,12 +174,9 @@ $(function() {
 		appendTo: 'body',
 		helper: multiHelper
 	};
-
+	// for know revert position on each card {cardID:listID}
+	
 	$listsBody.sortable(optionsSortable).disableSelection();
-
-	$('body').on('click', '.card-ui', function(event) {
-		$(event.target).toggleClass('ui-selected');
-	});
 
 	//Panzoom
 	var minScale = 0.4;

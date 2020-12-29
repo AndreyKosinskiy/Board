@@ -1,12 +1,18 @@
+.hide{
+  visibility: hidden;
+}
+.card-hide{
+  visibility: hidden;
+}
+
 body{
   overflow: hidden;
-  height: 100vw;
+  /* height: 100vw; */
   border: 2px red solid;
-  width: 100vw;
+  
 }
 .board-ui{
   height: 100vw;
-  width: 100vw;
   position:absolute;
   bottom: 0;
   left: 0;
