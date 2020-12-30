@@ -12,8 +12,7 @@ $(function() {
 	const $lists = $(listsSelector);
 	const $listsBody = $(listsSelectorBody);
 	const $cards = $(cardsSelector);
-
-	const $listsAndCards = $([listsSelector,cardsSelector])
+	let helperBox = null;
 
 	const elementDown = function(event, ui) {
 		let $item = ui.element || $(ui.helper);
@@ -103,7 +102,7 @@ $(function() {
 			const selected = ui.item.data('multidrag');
 			ui.item.after(selected);
 			selected.css('z-index', zIndexDefault);
-			// ui.item.remove();
+			ui.item.remove();
 			// $('.card-hide').remove();
 			//fix bug after drop in sortable
 			$('.list-ui-body').each(function(index,elem){
@@ -116,36 +115,29 @@ $(function() {
 			$('.card-hide').remove();
 		}else{
 			// revert ui.item
-			const selected = ui.item.data('multidrag');
-			if(selected.length == 1){
-				$listsBody.sortable("cancel")
-				$('.card-hide').removeClass('card-hide')
-			}else{
-				$listsBody.sortable("cancel")
-				$('.card-hide').removeClass('card-hide')
-			}
-
+			// const selected = ui.item.data('multidrag');
+			console.log(helperBox)
+			const selected = helperBox.data('multidrag')
+			$('.card-hide').removeClass('card-hide')
 			revert = false
+			$listsBody.sortable("enable")
 		}
+		helperBox = null
 	};
 
 	const multiHelper = function(e, item) {
+		console.log(arguments)
 		if (!item.hasClass('ui-selected')) {
 			item.parent().children('.ui-selected').removeClass('ui-selected');
 			item.addClass('ui-selected');
 		}
 		var selected = $('.ui-selected').clone();
-	//	item.data('multidrag', selected).siblings('.ui-selected').addClass('card-hide')//remove();
-		// $('.ui-selected').each(function(index,elem){
-		// 	var $elem = $(elem)
-		// 	if(!$elem.is(item)){
-		// 		$elem.addClass('card-hide')//remove()
-		// 	}
-		// })
-		console.log('hide all selected')
+		var helperBox = $('<div/>').append(selected)
 		$('.ui-selected').addClass('card-hide')
-		item.data('multidrag', selected)
-		return $('<div/>').append(selected);
+		//item.data('multidrag', selected)
+		helperBox.data('multidrag', selected)
+		console.log(helperBox.data('multidrag'))
+		return helperBox;
 	};
 
 	const sortableOut = function(event, ui){
@@ -154,23 +146,29 @@ $(function() {
 
 	const sortableOver = function(event, ui){
 		$(ui.placeholder).removeClass('hide');
+		ui.item.remove();
 	}
 	var revert = false;
 	const revertSortable = function(event, ui){
 		// check on revert
 		if($('.'+placeholderClass).hasClass('hide')){
 			revert = true
+			$listsBody.sortable("disable")
 		}else{
 			revert = false
 		}
 	}
 
+	const sortableReceive = function(event, ui){
+		console.log(ui)
+	}
 	const eventsSortable = {
 		activate: startDraggable,
 		stop: sortableItemStop,
 		beforeStop: revertSortable,
 		out: sortableOut,
-		over: sortableOver
+		over: sortableOver,
+		receive: sortableReceive
 	};
 
 	optionsSortable = {
